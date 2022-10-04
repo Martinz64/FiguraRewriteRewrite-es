@@ -35,7 +35,13 @@
   "figura.toast.panic_disabled": "Modo Pánico desactivado",
   "figura.toast.clipboard": "Copiado al portapapeles!",
   "figura.toast.load_error": "Error al cargar el avatar!",
-  "figura.toast.load_error.2": "Comprueba \"avatar.json\"",
+  "figura.toast.load_error.1": "Archivo moon no válido",
+  "figura.toast.load_error.2": "Error de script",
+  "figura.toast.load_error.3": "Sonido personalizado no válido",
+  "figura.toast.load_error.4": "Modelo no válido",
+  "figura.toast.load_error.5": "Error en \"avatar.json\"",
+  
+  
   "figura.toast.trust_change": "El nivel de confianza ahora es",
   "figura.toast.new_version": "Nueva versión disponible",
 
@@ -58,6 +64,7 @@
   "figura.trust.complexity": "Límite de Complejidad",
   "figura.trust.particles": "Límite de Partículas",
   "figura.trust.sounds": "Límite de Sonidos",
+  "figura.trust.volume": "Volumen de los sonidos",
   "figura.trust.bb_animations": "Límite de Complejidad de Animaciones",
   "figura.trust.vanilla_model_edit": "Cambios al modelo original",
   "figura.trust.nameplate_edit": "Cambios al Nameplate",
@@ -74,10 +81,10 @@
   "figura.popup_menu.trust_menu": "Abrir ajustes de confianza",
 
 
-  "figura.badges.standard.default": "Insignia por defecto",
-  "figura.badges.standard.cheese": "QUESOGRANDE!",
-  "figura.badges.standard.warning": "Este Avatar está diseñado para una versión de Figura más reciente, la compatibilidad será limitada",
-  "figura.badges.standard.error": "Error en el Script",
+  "figura.badges.system.default": "Insignia por defecto",
+  "figura.badges.system.cheese": "QUESOGRANDE!",
+  "figura.badges.system.warning": "Este Avatar está diseñado para una versión de Figura más reciente, la compatibilidad será limitada",
+  "figura.badges.system.error": "Error en el Script",
 
   "figura.badges.pride.agender": "Insignia de Agénero",
   "figura.badges.pride.aroace": "Insignia de Aroace",
@@ -172,8 +179,9 @@
   "figura.gui.trust.reload_all": "Recargar todos",
   "figura.gui.trust.expand_trust.tooltip": "Expandir menú avanzado de confianza",
   "figura.gui.trust.minimize_trust.tooltip": "Minimizar menú avanzado de confianza",
+  "figura.gui.trust.disconnected.tooltip": "Mostrar avatares desconectados",
 
-
+  "figura.gui.trust.disconnected": "(desconectado)",
   "figura.gui.trust.size": "Tamaño: %s",
   "figura.gui.trust.complexity": "Nivel de Complejidad: %s",
   "figura.gui.trust.init": "Instrucciones de inicialización",
@@ -288,6 +296,12 @@
   "figura.config.popup_max_size": "Tamaño máximo del menú de jugador",
   "figura.config.popup_max_size.tooltip": "Tamaño mínimo del menú de jugador al acercarse de la persona",
 
+  "figura.config.avatar_heads": "Cabezas de Avatar",
+  "figura.config.avatar_heads.tooltip": "Mostrar la cabeza del avatar en vez de la skin del jugador",
+
+  "figura.config.figura_inventory": "Inventario de Figura",
+  "figura.config.figura_inventory.tooltip": "Reemplazar el modelo del jugador en inventario con la muñeca de papel de Figura",
+
 
   "figura.config.paperdoll": "Muñeca de papel",
   "figura.config.paperdoll.tooltip": "Ajustes de la Muñeca de papel",
@@ -344,6 +358,9 @@
 
   "figura.config.dev": "Desarrollador",
   "figura.config.dev.tooltip": "Ajustes Experimentales para Desarrolladores",
+
+  "figura.config.connection_toasts": "Notificaciones de Backend",
+  "figura.config.connection_toasts.tooltip": "Recibir Notificaciones sobre cambios en la conexión con el backend",
 
   "figura.config.reload_button": "Tecla para recargar Avatar",
   "figura.config.reload_button.tooltip": "Recargar el Avatar utilizado al pulsar esta tecla",
