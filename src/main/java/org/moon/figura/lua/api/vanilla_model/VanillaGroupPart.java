@@ -2,8 +2,8 @@ package org.moon.figura.lua.api.vanilla_model;
 
 import net.minecraft.client.model.EntityModel;
 import org.moon.figura.lua.LuaWhitelist;
-import org.moon.figura.lua.docs.LuaFunctionOverload;
 import org.moon.figura.lua.docs.LuaMethodDoc;
+import org.moon.figura.lua.docs.LuaMethodOverload;
 import org.moon.figura.lua.docs.LuaTypeDoc;
 
 import java.util.Collection;
@@ -50,7 +50,7 @@ public class VanillaGroupPart extends VanillaPart {
     @Override
     @LuaWhitelist
     @LuaMethodDoc(
-            overloads = @LuaFunctionOverload(
+            overloads = @LuaMethodOverload(
                     argumentTypes = Boolean.class,
                     argumentNames = "visible"
             ),

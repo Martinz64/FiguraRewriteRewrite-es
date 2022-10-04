@@ -5,8 +5,8 @@ import org.luaj.vm2.LuaValue;
 import org.moon.figura.avatars.Avatar;
 import org.moon.figura.lua.LuaNotNil;
 import org.moon.figura.lua.LuaWhitelist;
-import org.moon.figura.lua.docs.LuaFunctionOverload;
 import org.moon.figura.lua.docs.LuaMethodDoc;
+import org.moon.figura.lua.docs.LuaMethodOverload;
 import org.moon.figura.lua.docs.LuaTypeDoc;
 import org.moon.figura.math.vector.FiguraVec3;
 import org.moon.figura.trust.TrustContainer;
@@ -29,7 +29,7 @@ public class AvatarAPI {
 
     @LuaWhitelist
     @LuaMethodDoc(
-            overloads = @LuaFunctionOverload(
+            overloads = @LuaMethodOverload(
                     argumentTypes = {String.class, Object.class},
                     argumentNames = {"key", "value"}
             ),
@@ -54,11 +54,11 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc(
             overloads = {
-                    @LuaFunctionOverload(
+                    @LuaMethodOverload(
                             argumentTypes = FiguraVec3.class,
                             argumentNames = "color"
                     ),
-                    @LuaFunctionOverload(
+                    @LuaMethodOverload(
                             argumentTypes = {Double.class, Double.class, Double.class},
                             argumentNames = {"r", "g", "b"}
                     )
@@ -111,13 +111,13 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_init_count")
     public int getInitCount() {
-        return avatar.initInstructions;
+        return avatar.init.pre;
     }
 
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_entity_init_count")
     public int getEntityInitCount() {
-        return avatar.entityInitInstructions;
+        return avatar.init.post;
     }
 
     @LuaWhitelist
@@ -129,7 +129,7 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_tick_count")
     public int getTickCount() {
-        return avatar.entityTickInstructions;
+        return avatar.tick.getTotal();
     }
 
     @LuaWhitelist
@@ -141,7 +141,7 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_render_count")
     public int getRenderCount() {
-        return avatar.entityRenderInstructions;
+        return avatar.render.getTotal();
     }
 
     @LuaWhitelist
@@ -153,7 +153,7 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_world_tick_count")
     public int getWorldTickCount() {
-        return avatar.worldTickInstructions;
+        return avatar.worldTick.getTotal();
     }
 
     @LuaWhitelist
@@ -165,7 +165,7 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_world_render_count")
     public int getWorldRenderCount() {
-        return avatar.worldRenderInstructions;
+        return avatar.worldRender.getTotal();
     }
 
     @LuaWhitelist
@@ -177,7 +177,7 @@ public class AvatarAPI {
     @LuaWhitelist
     @LuaMethodDoc("avatar.get_complexity")
     public int getComplexity() {
-        return avatar.complexity;
+        return avatar.complexity.pre;
     }
 
     @LuaWhitelist
@@ -208,6 +208,12 @@ public class AvatarAPI {
     @LuaMethodDoc("avatar.get_max_sounds")
     public int getMaxSounds() {
         return avatar.trust.get(TrustContainer.Trust.SOUNDS);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("avatar.get_volume")
+    public int getVolume() {
+        return avatar.trust.get(TrustContainer.Trust.VOLUME);
     }
 
     @LuaWhitelist

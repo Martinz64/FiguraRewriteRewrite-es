@@ -20,7 +20,6 @@ import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 
 public class FiguraLuaPrinter {
@@ -66,47 +65,54 @@ public class FiguraLuaPrinter {
     }
 
     //print an error, errors should always show up on chat
-    public static void sendLuaError(LuaError error, String name, UUID owner) {
-        if (!Config.LOG_OTHERS.asBool() && !FiguraMod.isLocal(owner))
+    public static void sendLuaError(LuaError error, Avatar owner) {
+        if (!Config.LOG_OTHERS.asBool() && !FiguraMod.isLocal(owner.owner))
             return;
 
         //Jank as hell
-        String message = error.toString().replace("org.luaj.vm2.LuaError: ", "");
-        message = message.replace("\n\tautoScripts:1: in main chunk", "");
-        message = message.replace("\n\t[Java]: in ?", "");
+        String message = error.toString().replace("org.luaj.vm2.LuaError: ", "")
+                .replace("\n\t[Java]: in ?", "")
+                .replace("'<eos>' expected", "Expected end of script");
 
-        message = message.replace("autoScripts:1 [string ", "Script [");
-        message = message.replace(": syntax error\nstack traceback:", ": syntax error");
-
-        /*
-        if (src != null) {
+        //get script line
+        line: {
             try {
                 String[] split = message.split(":", 2);
-                if (split.length > 1) {
-                    int line = Integer.parseInt(split[1].split("\\D", 2)[0]);
+                if (split.length <= 1 || owner.luaRuntime == null)
+                    break line;
 
-                    String str = src.split("\n")[line - 1].trim();
-                    if (str.length() > 96)
-                        str = str.substring(0, 96) + " [...]";
+                //name
+                String left = "[string \"";
+                int sub = split[0].indexOf(left);
 
-                    message += "\nscript:\n\t" + str;
-                }
+                String name = sub == -1 ? split[0] : split[0].substring(sub + left.length(), split[0].indexOf("\"]"));
+                String src = owner.luaRuntime.scripts.get(name);
+                if (src == null)
+                    break line;
+
+                //line
+                int line = Integer.parseInt(split[1].split("\\D", 2)[0]);
+
+                String str = src.split("\n")[line - 1].trim();
+                if (str.length() > 96)
+                    str = str.substring(0, 96) + " [...]";
+
+                message += "\nscript:\n\t" + str;
             } catch (Exception ignored) {}
         }
-         */
 
         MutableComponent component = Component.empty()
                 .append(Component.literal("[error] ").withStyle(ColorUtils.Colors.LUA_ERROR.style))
-                .append(Component.literal(name))
+                .append(Component.literal(owner.entityName))
                 .append(Component.literal(" : " + message).withStyle(ColorUtils.Colors.LUA_ERROR.style))
                 .append(Component.literal("\n"));
 
-        sendLuaChatMessage(component);
+        chatQueue.offer(component); //bypass the char limit filter
         FiguraMod.LOGGER.error("", error);
     }
 
     //print an ping!
-    public static void sendPingMessage(Avatar owner, String ping, int size, Varargs args) {
+    public static void sendPingMessage(Avatar owner, String ping, int size, LuaValue[] args) {
         int config = Config.LOG_PINGS.asInt();
 
         //no ping? *megamind.png*
@@ -122,8 +128,8 @@ public class FiguraLuaPrinter {
                 .append(size + " bytes")
                 .append(Component.literal(" :: ").withStyle(ColorUtils.Colors.LUA_PING.style));
 
-        for (int i = 0; i < args.narg(); i++)
-            text.append(getPrintText(owner.luaRuntime.typeManager, args.arg(i + 1), true, false)).append("\t");
+        for (LuaValue arg : args)
+            text.append(getPrintText(owner.luaRuntime.typeManager, arg, true, false)).append("\t");
 
         text.append(Component.literal("\n"));
 
@@ -147,7 +153,7 @@ public class FiguraLuaPrinter {
             //prints the value, either on chat or console
             sendLuaMessage(text, runtime.owner.entityName);
 
-            return NIL;
+            return LuaValue.valueOf(text.getString());
         }
 
         @Override
@@ -166,9 +172,8 @@ public class FiguraLuaPrinter {
             for (int i = 0; i < args.narg(); i++)
                 text.append(TextUtils.tryParseJson(args.arg(i + 1).tojstring()));
 
-            sendLuaMessage(text, runtime.owner.entityName);
-
-            return NIL;
+            sendLuaChatMessage(text);
+            return LuaValue.valueOf(text.getString());
         }
 
         @Override
@@ -183,16 +188,19 @@ public class FiguraLuaPrinter {
             if (!Config.LOG_OTHERS.asBool() && !FiguraMod.isLocal(runtime.owner.owner))
                 return NIL;
 
+            boolean silent = false;
             MutableComponent text = Component.empty();
 
             if (args.narg() > 0) {
                 int depth = args.arg(2).isnumber() ? args.arg(2).checkint() : 1;
                 text.append(tableToText(runtime.typeManager, args.arg(1), depth, 1, true));
+                silent = args.arg(3).isboolean() && args.arg(3).checkboolean();
             }
 
-            sendLuaMessage(text, runtime.owner.entityName);
+            if (!silent)
+                sendLuaMessage(text, runtime.owner.entityName);
 
-            return NIL;
+            return LuaValue.valueOf(text.getString());
         }
 
         @Override
@@ -298,7 +306,7 @@ public class FiguraLuaPrinter {
         //format value
         if (!(value instanceof LuaString) && value.isnumber()) {
             Double d = value.checkdouble();
-            ret = d == Math.rint(d) ? String.valueOf(d.longValue()) : df.format(d);
+            ret = d == Math.rint(d) ? value.tojstring() : df.format(d);
         } else {
             ret = value.tojstring();
             if (value.isstring() && quoteStrings)
@@ -338,73 +346,50 @@ public class FiguraLuaPrinter {
     //-- SLOW PRINTING OF LOG --//
 
     //Log safety
-    private static final LinkedList<MutableComponent> chatQueue = new LinkedList<>();
-    private static final int MAX_CHARS_QUEUED = 10000000;
+    private static final LinkedList<Component> chatQueue = new LinkedList<>();
+    private static final int MAX_CHARS_QUEUED = 10_000_000;
     private static int charsQueued = 0;
-    private static final int MAX_CHARS_PER_TICK = 10000;
+    private static final int MAX_CHARS_PER_TICK = 10_000;
 
     /**
      * Sends a message making use of the queue
      * @param message to send
      * @throws org.luaj.vm2.LuaError if the message could not fit in the queue
      */
-    private static void sendLuaChatMessage(MutableComponent message) throws LuaError {
-        if (message.getSiblings().isEmpty()) {
-            charsQueued += message.getString().length();
-            if (charsQueued > MAX_CHARS_QUEUED) {
-                chatQueue.clear();
-                charsQueued = 0;
-                throw new LuaError("Chat overflow: printing too much!");
-            }
-            chatQueue.offer(message);
-        } else {
-            MutableComponent withoutSiblings = message.plainCopy().withStyle(message.getStyle());
-            sendLuaChatMessage(withoutSiblings);
-            for (Component sibling : message.getSiblings()) {
-                ((MutableComponent) sibling).setStyle(sibling.getStyle().applyTo(message.getStyle()));
-                sendLuaChatMessage((MutableComponent) sibling);
-            }
-
+    private static void sendLuaChatMessage(Component message) throws LuaError {
+        charsQueued += message.getString().length();
+        if (charsQueued > MAX_CHARS_QUEUED) {
+            chatQueue.clear();
+            charsQueued = 0;
+            throw new LuaError("Chat overflow: printing too much!");
         }
+        chatQueue.offer(message);
     }
 
     public static void printChatFromQueue() {
+        if (chatQueue.isEmpty())
+            return;
+
+        MutableComponent toPrint = Component.empty();
         int i = MAX_CHARS_PER_TICK;
-        int totalLen = 0;
-        MutableComponent bigComponent = chatQueue.poll();
-        while (chatQueue.size() > 1) {
-            MutableComponent smallComponent = Component.empty();
 
-            int len = 0;
-            MutableComponent smallerComponent = chatQueue.poll();
-            while (chatQueue.size() > 1 && !smallerComponent.getString().equals("\n")) {
-                smallComponent.append(smallerComponent);
-                len += smallerComponent.getString().length();
-                smallerComponent = chatQueue.poll();
-            }
-            smallComponent.append(smallerComponent);
-            len++;
-
-            i -= len;
-            if (i < 0) {
-                charsQueued -= len;
-                if (len > MAX_CHARS_PER_TICK) {
-                    String s = "[Component too big, not printing]";
-                    chatQueue.addFirst(Component.literal(s));
-                    charsQueued += s.length();
-                } else {
-                    chatQueue.addFirst(smallComponent);
-                }
+        while (i > 0) {
+            Component text = chatQueue.poll();
+            if (text == null)
                 break;
+
+            int len = text.getString().length();
+            if (len <= i) {
+                i -= len;
+                toPrint.append(text);
+            } else {
+                chatQueue.offerFirst(TextUtils.substring(text, i, len));
+                chatQueue.offerFirst(TextUtils.substring(text, 0, i));
             }
-            bigComponent.append(smallComponent);
-            totalLen += len;
         }
-        if (chatQueue.size() == 1)
-            chatQueue.clear();
-        if (bigComponent != null) {
-            FiguraMod.sendChatMessage(bigComponent);
-            charsQueued -= totalLen;
-        }
+
+        String print = toPrint.getString();
+        if (!print.isEmpty())
+            FiguraMod.sendChatMessage(print.endsWith("\n") ? TextUtils.substring(toPrint, 0, print.length() - 1) : toPrint);
     }
 }

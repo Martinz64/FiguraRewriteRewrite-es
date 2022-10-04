@@ -6,14 +6,15 @@ import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.Varargs;
 import org.moon.figura.lua.LuaNotNil;
 import org.moon.figura.lua.LuaWhitelist;
-import org.moon.figura.lua.docs.LuaFunctionOverload;
 import org.moon.figura.lua.docs.LuaMetamethodDoc;
+import org.moon.figura.lua.docs.LuaMetamethodDoc.LuaMetamethodOverload;
 import org.moon.figura.lua.docs.LuaMethodDoc;
+import org.moon.figura.lua.docs.LuaMethodOverload;
 import org.moon.figura.lua.docs.LuaTypeDoc;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -24,10 +25,20 @@ public class LuaEvent {
 
     private static final int MAX_FUNCTIONS = 1024;
 
-    private final Deque<LuaFunction> functions = new ArrayDeque<>();
-    private final Deque<LuaFunction> queue = new ArrayDeque<>();
-    private final Deque<LuaFunction> removalQueue = new ArrayDeque<>();
+    private final boolean piped;
+
+    private final Deque<LuaFunction> functions = new ConcurrentLinkedDeque<>();
+    private final Deque<LuaFunction> queue = new ConcurrentLinkedDeque<>();
+    private final Deque<LuaFunction> removalQueue = new ConcurrentLinkedDeque<>();
     private final HashMultimap<String, LuaFunction> names = HashMultimap.create();
+
+    public LuaEvent() {
+        this(false);
+    }
+
+    public LuaEvent(boolean piped) {
+        this.piped = piped;
+    }
 
     //Add all waiting functions from the queues
     protected void flushQueue() {
@@ -41,29 +52,23 @@ public class LuaEvent {
     }
 
     //Calls all the functions in the order they were registered, using the given args for all calls.
-    public void call(Varargs args) {
+    //If piped, the result of one function is passed through to the next, repeatedly, eventually returning the result.
+    public Varargs call(Varargs args) {
         flushQueue();
+        Varargs vars = args;
         for (LuaFunction function : functions)
-            function.invoke(args);
-    }
-
-    //The result of one function is passed through to the next, repeatedly, eventually returning the result.
-    //Used for CHAT_SEND_MESSAGE.
-    public Varargs pipedCall(Varargs args) {
-        flushQueue();
-        for (LuaFunction function : functions)
-            args = function.invoke(args);
-        return args;
+            vars = function.invoke(piped ? vars : args);
+        return vars;
     }
 
     @LuaWhitelist
     @LuaMethodDoc(
             overloads = {
-                    @LuaFunctionOverload(
+                    @LuaMethodOverload(
                             argumentTypes = LuaFunction.class,
                             argumentNames = "func"
                     ),
-                    @LuaFunctionOverload(
+                    @LuaMethodOverload(
                             argumentTypes = {LuaFunction.class, String.class},
                             argumentNames = {"func", "name"}
                     )
@@ -89,7 +94,7 @@ public class LuaEvent {
 
     @LuaWhitelist
     @LuaMethodDoc(
-            overloads = @LuaFunctionOverload(
+            overloads = @LuaMethodOverload(
                     argumentTypes = String.class,
                     argumentNames = "name"
             ),
@@ -111,7 +116,7 @@ public class LuaEvent {
 
     @LuaWhitelist
     @LuaMetamethodDoc(overloads = {
-            @LuaMetamethodDoc.LuaMetamethodOverload(
+            @LuaMetamethodOverload(
                     types = {int.class, LuaEvent.class}
             )
     })

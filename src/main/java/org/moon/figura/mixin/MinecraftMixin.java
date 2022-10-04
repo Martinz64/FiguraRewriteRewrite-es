@@ -16,7 +16,7 @@ import org.moon.figura.backend.NetworkManager;
 import org.moon.figura.config.Config;
 import org.moon.figura.gui.FiguraToast;
 import org.moon.figura.gui.PopupMenu;
-import org.moon.figura.gui.actionwheel.ActionWheel;
+import org.moon.figura.gui.ActionWheel;
 import org.moon.figura.lua.api.sound.SoundAPI;
 import org.moon.figura.utils.EntityUtils;
 import org.moon.figura.utils.FiguraText;
@@ -124,15 +124,5 @@ public abstract class MinecraftMixin {
     @Inject(at = @At("RETURN"), method = "runTick")
     private void afterTick(boolean tick, CallbackInfo ci) {
         AvatarManager.clearAnimations();
-    }
-
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sounds/SoundManager;pause()V"), method = "pauseGame")
-    private void pauseGame(boolean pause, CallbackInfo ci) {
-        AvatarManager.pauseAnimations();
-    }
-
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sounds/SoundManager;resume()V"), method = "setScreen")
-    private void resumeGame(Screen screen, CallbackInfo ci) {
-        AvatarManager.resumeAnimations();
     }
 }

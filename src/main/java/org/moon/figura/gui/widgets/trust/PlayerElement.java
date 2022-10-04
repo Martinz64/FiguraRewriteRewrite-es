@@ -2,6 +2,7 @@ package org.moon.figura.gui.widgets.trust;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -30,6 +31,10 @@ import java.util.UUID;
 
 public class PlayerElement extends AbstractTrustElement {
 
+    public static final ResourceLocation UNKNOWN = new FiguraIdentifier("textures/gui/unknown_portrait.png");
+    private static final ResourceLocation BACKGROUND = new FiguraIdentifier("textures/gui/player_trust.png");
+    private static final Component DC_TEXT = FiguraText.of("gui.trust.disconnected").withStyle(ChatFormatting.RED);
+
     private final String name;
     private final ResourceLocation skin;
     private final UUID owner;
@@ -37,7 +42,11 @@ public class PlayerElement extends AbstractTrustElement {
     private final Label nameLabel;
     private final PlayerStatusWidget status;
 
-    private static final ResourceLocation BACKGROUND = new FiguraIdentifier("textures/gui/player_trust.png");
+    public boolean disconnected = false;
+
+    //drag
+    public boolean dragged = false;
+    public int index = -1;
 
     public PlayerElement(String name, TrustContainer trust, ResourceLocation skin, UUID owner, PlayerList parent) {
         super(40, trust, parent);
@@ -99,6 +108,24 @@ public class PlayerElement extends AbstractTrustElement {
     }
 
     @Override
+    public void render(PoseStack stack, int mouseX, int mouseY, float delta) {
+        if (dragged)
+            UIHelper.fillRounded(stack, x - 1, y - 1, width + 2, height + 2, 0x40FFFFFF);
+        else
+            super.render(stack, mouseX, mouseY, delta);
+    }
+
+    public void renderDragged(PoseStack stack, int mouseX, int mouseY, float delta) {
+        int oX = x;
+        int oY = y;
+        x = mouseX - 20;
+        y = mouseY - height / 2;
+        super.render(stack, mouseX, mouseY, delta);
+        x = oX;
+        y = oY;
+    }
+
+    @Override
     public void renderButton(PoseStack stack, int mouseX, int mouseY, float delta) {
         stack.pushPose();
 
@@ -118,31 +145,44 @@ public class PlayerElement extends AbstractTrustElement {
 
         //selected overlay
         if (this.parent.selectedEntry == this) {
-            UIHelper.fillRounded(stack, x - 1, y - 1, width + 2, height + 2, 0xFFFFFFFF);
+            ArrayList<TrustContainer> list = new ArrayList<>(TrustManager.GROUPS.values());
+            int color = (dragged ? list.get(Math.min(index, list.size() - (TrustManager.isLocal(trust) ? 1 : 2))) : trust).getGroupColor();
+            UIHelper.fillRounded(stack, x - 1, y - 1, width + 2, height + 2, color + (0xFF << 24));
         }
 
         //background
         UIHelper.renderTexture(stack, x, y, width, height, BACKGROUND);
 
         //head
-        UIHelper.setupTexture(this.skin);
-        blit(stack, x + 4, y + 4, 32, 32, 8f, 8f, 8, 8, 64, 64);
-
-        //hat
-        RenderSystem.enableBlend();
-        blit(stack, x + 4, y + 4, 32, 32, 40f, 8f, 8, 8, 64, 64);
-        RenderSystem.disableBlend();
-
-        //name
-        Font font = Minecraft.getInstance().font;
         Component name = null;
 
+        boolean head = false;
         Avatar avatar = AvatarManager.getAvatarForPlayer(owner);
         if (avatar != null) {
             NameplateCustomization custom = avatar.luaRuntime == null ? null : avatar.luaRuntime.nameplate.LIST;
             if (custom != null && custom.getText() != null && avatar.trust.get(TrustContainer.Trust.NAMEPLATE_EDIT) == 1)
                 name = NameplateCustomization.applyCustomization(custom.getText());
+
+            head = !dragged && avatar.renderHeadOnHud(stack, x + 4, y + 4, Math.round(32 * scale), 64, true);
         }
+
+        if (!head) {
+            if (this.skin != null) {
+                //head
+                UIHelper.setupTexture(this.skin);
+                blit(stack, x + 4, y + 4, 32, 32, 8f, 8f, 8, 8, 64, 64);
+
+                //hat
+                RenderSystem.enableBlend();
+                blit(stack, x + 4, y + 4, 32, 32, 40f, 8f, 8, 8, 64, 64);
+                RenderSystem.disableBlend();
+            } else {
+                UIHelper.renderTexture(stack, x + 4, y + 4, 32, 32, UNKNOWN);
+            }
+        }
+
+        //name
+        Font font = Minecraft.getInstance().font;
 
         if (name == null)
             name = Component.literal(this.name);
@@ -166,7 +206,12 @@ public class PlayerElement extends AbstractTrustElement {
         }
 
         //trust
-        drawString(stack, font, trust.getGroupName(), x + 40, y + height - font.lineHeight - 4, 0xFFFFFF);
+        int textY = y + height - font.lineHeight - 4;
+        drawString(stack, font, trust.getGroupName(), x + 40, textY, 0xFFFFFF);
+
+        //disconnected
+        if (disconnected)
+            drawString(stack, font, DC_TEXT, x + width - font.width(DC_TEXT) - 4, textY, 0xFFFFFF);
 
         stack.popPose();
     }
@@ -189,6 +234,11 @@ public class PlayerElement extends AbstractTrustElement {
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return !dragged && super.isMouseOver(mouseX, mouseY);
     }
 
     public String getName() {

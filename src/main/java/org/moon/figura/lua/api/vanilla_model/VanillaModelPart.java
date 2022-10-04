@@ -4,8 +4,8 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import org.moon.figura.avatars.model.ParentType;
 import org.moon.figura.lua.LuaWhitelist;
-import org.moon.figura.lua.docs.LuaFunctionOverload;
 import org.moon.figura.lua.docs.LuaMethodDoc;
+import org.moon.figura.lua.docs.LuaMethodOverload;
 import org.moon.figura.lua.docs.LuaTypeDoc;
 import org.moon.figura.math.vector.FiguraVec3;
 
@@ -50,7 +50,7 @@ public class VanillaModelPart extends VanillaPart {
 
         ModelPart part = provider.apply(model);
         savedOriginRot.set(-part.xRot, -part.yRot, part.zRot);
-        savedOriginRot.scale(180/Math.PI);
+        savedOriginRot.scale(180 / Math.PI);
 
         FiguraVec3 pivot = parentType.offset.copy();
         pivot.subtract(part.x, part.y, part.z);
@@ -68,7 +68,7 @@ public class VanillaModelPart extends VanillaPart {
     @Override
     @LuaWhitelist
     @LuaMethodDoc(
-            overloads = @LuaFunctionOverload(
+            overloads = @LuaMethodOverload(
                     argumentTypes = Boolean.class,
                     argumentNames = "visible"
             ),

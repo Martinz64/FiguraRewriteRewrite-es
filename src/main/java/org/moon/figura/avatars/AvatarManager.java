@@ -13,10 +13,7 @@ import org.moon.figura.gui.widgets.lists.AvatarList;
 import org.moon.figura.utils.FiguraText;
 
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -62,7 +59,7 @@ public class AvatarManager {
             return;
 
         for (Avatar avatar : LOADED_AVATARS.values())
-            avatar.worldRenderEvent(tickDelta);
+            avatar.render(tickDelta);
     }
 
     public static void afterWorldRender(float tickDelta) {
@@ -87,22 +84,6 @@ public class AvatarManager {
 
         for (Avatar avatar : LOADED_AVATARS.values())
             avatar.clearAnimations();
-    }
-
-    public static void pauseAnimations() {
-        if (panic)
-            return;
-
-        for (Avatar avatar : LOADED_AVATARS.values())
-            avatar.pauseAnimations();
-    }
-
-    public static void resumeAnimations() {
-        if (panic)
-            return;
-
-        for (Avatar avatar : LOADED_AVATARS.values())
-            avatar.resumeAnimations();
     }
 
     // -- avatar getters -- //
@@ -132,6 +113,14 @@ public class AvatarManager {
         //TODO
         //otherwise, returns the avatar from the entity pool (cem)
         return null;
+    }
+
+    public static List<Avatar> getLoadedAvatars() {
+        List<Avatar> list = new ArrayList<>();
+        for (Avatar avatar : LOADED_AVATARS.values())
+            if (avatar.nbt != null)
+                list.add(avatar);
+        return list;
     }
 
     // -- avatar management -- //
@@ -189,7 +178,7 @@ public class AvatarManager {
             FiguraMod.LOGGER.debug("Loaded local avatar from " + path);
         } catch (Exception e) {
             FiguraMod.LOGGER.error("Failed to load avatar from " + path, e);
-            FiguraToast.sendToast(FiguraText.of("toast.load_error"), FiguraText.of("toast.load_error.2"), FiguraToast.ToastType.ERROR);
+            FiguraToast.sendToast(FiguraText.of("toast.load_error"), FiguraText.of("toast.load_error." + LocalAvatarLoader.getLoadState()), FiguraToast.ToastType.ERROR);
         }
 
         //mark as not uploaded

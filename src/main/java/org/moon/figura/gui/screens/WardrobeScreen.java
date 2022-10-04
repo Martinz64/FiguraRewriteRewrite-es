@@ -10,6 +10,7 @@ import org.moon.figura.FiguraMod;
 import org.moon.figura.avatars.Avatar;
 import org.moon.figura.avatars.AvatarManager;
 import org.moon.figura.avatars.providers.LocalAvatarFetcher;
+import org.moon.figura.avatars.providers.LocalAvatarLoader;
 import org.moon.figura.backend.NetworkManager;
 import org.moon.figura.commands.FiguraLinkCommand;
 import org.moon.figura.config.Config;
@@ -21,8 +22,6 @@ import org.moon.figura.utils.FiguraText;
 public class WardrobeScreen extends AbstractPanelScreen {
 
     public static final Component TITLE = FiguraText.of("gui.panels.title.wardrobe");
-    private static final String EGG = "ĉĉĈĈćĆćĆBAā";
-    private String egg = EGG;
 
     private StatusWidget statusWidget;
     private AvatarInfoWidget avatarInfo;
@@ -67,6 +66,9 @@ public class WardrobeScreen extends AbstractPanelScreen {
         //upload
         addRenderableWidget(upload = new TexturedButton(buttX - 48, buttY, 24, 24, 0, 0, 24, new FiguraIdentifier("textures/gui/upload.png"), 72, 24, FiguraText.of("gui.wardrobe.upload.tooltip"), button -> {
             Avatar avatar = AvatarManager.getAvatarForPlayer(FiguraMod.getLocalPlayerUUID());
+            try {
+                LocalAvatarLoader.loadAvatar(null);
+            } catch (Exception ignored) {}
             NetworkManager.uploadAvatar(avatar, null);
             AvatarList.selectedEntry = null;
         }));
@@ -162,17 +164,5 @@ public class WardrobeScreen extends AbstractPanelScreen {
     public void removed() {
         LocalAvatarFetcher.save();
         super.removed();
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        egg += (char) keyCode;
-        egg = egg.substring(1);
-        if (EGG.equals(egg)) {
-            Minecraft.getInstance().setScreen(new GameScreen(this));
-            return true;
-        } else {
-            return super.keyPressed(keyCode, scanCode, modifiers);
-        }
     }
 }

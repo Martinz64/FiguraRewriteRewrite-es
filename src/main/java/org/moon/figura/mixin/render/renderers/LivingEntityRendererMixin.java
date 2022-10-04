@@ -21,6 +21,7 @@ import org.moon.figura.avatars.AvatarManager;
 import org.moon.figura.avatars.model.rendering.PartFilterScheme;
 import org.moon.figura.config.Config;
 import org.moon.figura.ducks.LivingEntityRendererAccessor;
+import org.moon.figura.gui.PopupMenu;
 import org.moon.figura.mixin.render.layers.elytra.ElytraLayerAccessor;
 import org.moon.figura.trust.TrustContainer;
 import org.moon.figura.utils.ui.UIHelper;
@@ -97,9 +98,10 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
         //When viewed 3rd person, render all non-world parts.
         PartFilterScheme filter = invisible ? PartFilterScheme.PIVOTS : entity.isSpectator() ? PartFilterScheme.HEAD : PartFilterScheme.MODEL;
         int overlay = getOverlayCoords(entity, getWhiteOverlayProgress(entity, delta));
-        currentAvatar.renderEvent(delta);
+        UIHelper.EntityRenderMode renderMode = UIHelper.paperdoll ? UIHelper.renderMode : UIHelper.EntityRenderMode.RENDER;
+        currentAvatar.renderEvent(delta, renderMode.name());
         currentAvatar.render(entity, yaw, delta, translucent ? 0.15f : 1f, matrices, bufferSource, light, overlay, (LivingEntityRenderer<?, ?>) (Object) this, filter, translucent, glowing);
-        currentAvatar.postRenderEvent(delta);
+        currentAvatar.postRenderEvent(delta, renderMode.name());
     }
 
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
@@ -117,9 +119,11 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 
     @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
     public void shouldShowName(T livingEntity, CallbackInfoReturnable<Boolean> cir) {
-        if (UIHelper.forceNameplate)
+        if (UIHelper.paperdoll)
             cir.setReturnValue(Config.PREVIEW_NAMEPLATE.asBool());
         else if (!Minecraft.renderNames())
+            cir.setReturnValue(false);
+        else if (livingEntity.getUUID().equals(PopupMenu.getEntityId()))
             cir.setReturnValue(false);
         else if (Config.SELF_NAMEPLATE.asBool() && livingEntity == Minecraft.getInstance().player)
             cir.setReturnValue(true);

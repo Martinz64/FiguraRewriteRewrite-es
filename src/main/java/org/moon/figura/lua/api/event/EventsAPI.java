@@ -1,8 +1,10 @@
 package org.moon.figura.lua.api.event;
 
+import org.luaj.vm2.LuaFunction;
 import org.moon.figura.lua.LuaWhitelist;
 import org.moon.figura.lua.docs.LuaFieldDoc;
 import org.moon.figura.lua.docs.LuaMetamethodDoc;
+import org.moon.figura.lua.docs.LuaMetamethodDoc.LuaMetamethodOverload;
 import org.moon.figura.lua.docs.LuaTypeDoc;
 
 @LuaWhitelist
@@ -20,12 +22,10 @@ public class EventsAPI {
         POST_RENDER = new LuaEvent();
         WORLD_RENDER = new LuaEvent();
         POST_WORLD_RENDER = new LuaEvent();
-        CHAT_SEND_MESSAGE = new LuaEvent();
+        CHAT_SEND_MESSAGE = new LuaEvent(true);
         CHAT_RECEIVE_MESSAGE = new LuaEvent();
         SKULL_RENDER = new LuaEvent();
         MOUSE_SCROLL = new LuaEvent();
-        PREVIEW_RENDER = new LuaEvent();
-        POST_PREVIEW_RENDER = new LuaEvent();
     }
 
     //Unsure on how to do the docs for these fields. Maybe we keep the @LuaFieldDoc, just don't allow them to be
@@ -65,19 +65,13 @@ public class EventsAPI {
     @LuaWhitelist
     @LuaFieldDoc("events.mouse_scroll")
     public final LuaEvent MOUSE_SCROLL;
-    @LuaWhitelist
-    @LuaFieldDoc("events.preview_render")
-    public final LuaEvent PREVIEW_RENDER;
-    @LuaWhitelist
-    @LuaFieldDoc("events.post_preview_render")
-    public final LuaEvent POST_PREVIEW_RENDER;
 
     @LuaWhitelist
-    @LuaMetamethodDoc(overloads = @LuaMetamethodDoc.LuaMetamethodOverload(
+    @LuaMetamethodDoc(overloads = @LuaMetamethodOverload(
             types = {LuaEvent.class, EventsAPI.class, String.class},
             comment = "events.__index.comment1"
     ))
-    public Object __index(String key) {
+    public LuaEvent __index(String key) {
         if (key == null) return null;
         return switch (key) {
             case "ENTITY_INIT" -> ENTITY_INIT;
@@ -91,10 +85,18 @@ public class EventsAPI {
             case "CHAT_RECEIVE_MESSAGE" -> CHAT_RECEIVE_MESSAGE;
             case "SKULL_RENDER" -> SKULL_RENDER;
             case "MOUSE_SCROLL" -> MOUSE_SCROLL;
-            case "PREVIEW_RENDER" -> PREVIEW_RENDER;
-            case "POST_PREVIEW_RENDER" -> POST_PREVIEW_RENDER;
             default -> null;
         };
+    }
+
+    @LuaWhitelist
+    public void __newindex(String key, LuaFunction func) {
+        if (key == null)
+            return;
+
+        LuaEvent event = __index(key.toUpperCase());
+        if (event != null)
+            event.register(func, null);
     }
 
     @Override

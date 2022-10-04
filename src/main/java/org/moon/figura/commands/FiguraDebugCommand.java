@@ -62,7 +62,7 @@ public class FiguraDebugCommand {
             return 1;
         } catch (Exception e) {
             context.getSource().sendError(FiguraText.of("command.debug.error"));
-            FiguraMod.LOGGER.error("Failed to save Figura debug data!", e);
+            FiguraMod.LOGGER.error("Failed to save " + FiguraMod.MOD_NAME + " debug data!", e);
             return 0;
         }
     }
@@ -158,15 +158,15 @@ public class FiguraDebugCommand {
         JsonObject inst = new JsonObject();
 
         inst.addProperty("animationComplexity", avatar.animationComplexity);
-        inst.addProperty("complexity", avatar.complexity);
-        inst.addProperty("entityInitInstructions", avatar.entityInitInstructions);
-        inst.addProperty("entityRenderInstructions", avatar.entityRenderInstructions);
-        inst.addProperty("entityTickInstructions", avatar.entityTickInstructions);
-        inst.addProperty("initInstructions", avatar.initInstructions);
-        inst.addProperty("postEntityRenderInstructions", avatar.postEntityRenderInstructions);
-        inst.addProperty("postWorldRenderInstructions", avatar.postWorldRenderInstructions);
-        inst.addProperty("worldRenderInstructions", avatar.worldRenderInstructions);
-        inst.addProperty("worldTickInstructions", avatar.worldTickInstructions);
+        inst.addProperty("complexity", avatar.complexity.pre);
+        inst.addProperty("entityInitInstructions", avatar.init.post);
+        inst.addProperty("entityRenderInstructions", avatar.render.pre);
+        inst.addProperty("entityTickInstructions", avatar.tick.pre);
+        inst.addProperty("initInstructions", avatar.init.pre);
+        inst.addProperty("postEntityRenderInstructions", avatar.render.post);
+        inst.addProperty("postWorldRenderInstructions", avatar.worldRender.post);
+        inst.addProperty("worldRenderInstructions", avatar.worldRender.pre);
+        inst.addProperty("worldTickInstructions", avatar.worldTick.pre);
         inst.addProperty("particlesRemaining", avatar.particlesRemaining.peek());
         inst.addProperty("soundsRemaining", avatar.soundsRemaining.peek());
 
