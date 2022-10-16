@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Style;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.VarArgFunction;
 import org.moon.figura.FiguraMod;
-import org.moon.figura.avatars.Avatar;
+import org.moon.figura.avatar.Avatar;
 import org.moon.figura.config.Config;
 import org.moon.figura.utils.ColorUtils;
 import org.moon.figura.utils.TextUtils;
@@ -76,6 +76,11 @@ public class FiguraLuaPrinter {
 
         //get script line
         line: {
+            if (owner.minify) {
+                message += "\nscript:\n\tscript heavily minified! - cannot look for line numbers!";
+                break line;
+            }
+
             try {
                 String[] split = message.split(":", 2);
                 if (split.length <= 1 || owner.luaRuntime == null)
@@ -172,7 +177,7 @@ public class FiguraLuaPrinter {
             for (int i = 0; i < args.narg(); i++)
                 text.append(TextUtils.tryParseJson(args.arg(i + 1).tojstring()));
 
-            sendLuaChatMessage(text);
+            sendLuaChatMessage(TextUtils.removeClickableObjects(text));
             return LuaValue.valueOf(text.getString());
         }
 
@@ -258,7 +263,7 @@ public class FiguraLuaPrinter {
 
                 try {
                     Object obj = field.get(data);
-                    text.append(getTableEntry(typeManager, spacing, LuaValue.valueOf(name), typeManager.javaToLua(obj), hasTooltip, depth, indent));
+                    text.append(getTableEntry(typeManager, spacing, LuaValue.valueOf(name), typeManager.javaToLua(obj).arg1(), hasTooltip, depth, indent));
                     fields.add(name);
                 } catch (Exception e) {
                     FiguraMod.LOGGER.error("", e);

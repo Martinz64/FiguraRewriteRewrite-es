@@ -7,8 +7,8 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.moon.figura.avatars.Avatar;
-import org.moon.figura.avatars.AvatarManager;
+import org.moon.figura.avatar.Avatar;
+import org.moon.figura.avatar.AvatarManager;
 import org.moon.figura.gui.screens.TrustScreen;
 import org.moon.figura.gui.widgets.SwitchButton;
 import org.moon.figura.gui.widgets.TextField;
@@ -61,6 +61,8 @@ public class PlayerList extends AbstractList {
         //select self
         PlayerElement local = Minecraft.getInstance().player != null ? players.get(Minecraft.getInstance().player.getUUID()) : null;
         if (local != null) local.onPress();
+
+        scrollToSelected();
     }
 
     @Override
@@ -234,4 +236,24 @@ public class PlayerList extends AbstractList {
                 ret++;
         return Math.max(ret, 0);
     }
+
+    public void scrollToSelected() {
+        double y = 0;
+
+        //get height
+        totalHeight = 0;
+        for (AbstractTrustElement trustEntry : trustList) {
+            if (trustEntry instanceof PlayerElement && !trustEntry.isVisible())
+                continue;
+
+            if (trustEntry == selectedEntry)
+                y = totalHeight;
+            else
+                totalHeight += trustEntry.getHeight() + 8;
+        }
+
+        //set scroll
+        scrollBar.setScrollProgress(y / totalHeight);
+    }
+
 }

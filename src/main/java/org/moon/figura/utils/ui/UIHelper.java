@@ -355,9 +355,28 @@ public class UIHelper extends GuiComponent {
         RenderSystem.enableScissor((int) (x * scale), (int) (screenY - y * scale - scaledHeight), scaledWidth, scaledHeight);
     }
 
+    public static void highlight(PoseStack stack, int x, int y, int width, int height, int screenW, int screenH) {
+        //left
+        fill(stack, 0, 0, x, y + height, 0xBB000000);
+        //right
+        fill(stack, x + width, y, screenW, screenH, 0xBB000000);
+        //up
+        fill(stack, x, 0, screenW, y, 0xBB000000);
+        //down
+        fill(stack, 0, y + height, x + width, screenH, 0xBB000000);
+
+        //outline
+        fillOutline(stack, x - 1, y - 1, width + 2, height + 2, 0xFFFFFFFF);
+    }
+
     //widget.isMouseOver() returns false if the widget is disabled or invisible
     public static boolean isMouseOver(int x, int y, int width, int height, double mouseX, double mouseY) {
-        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+        return isMouseOver(x, y, width, height, mouseX, mouseY, false);
+    }
+
+    public static boolean isMouseOver(int x, int y, int width, int height, double mouseX, double mouseY, boolean force) {
+        ContextMenu context = force ? null : getContext();
+        return (context == null || !context.isVisible()) && mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
     public static void renderOutlineText(PoseStack stack, Font textRenderer, Component text, int x, int y, int color, int outline) {

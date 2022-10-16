@@ -259,6 +259,12 @@
   "figura.config.log_number_length": "Print Number Length",
   "figura.config.log_number_length.tooltip": "Changes the length of the decimal places that will be displayed within print functions",
 
+  "figura.config.format_script": "Format Script",
+  "figura.config.format_script.tooltip.1":"Toggles if scripts will be stripped of comments and whitespace before being loaded.",
+  "figura.config.format_script.tooltip.2":"Requires reselecting the avatar to take effect.",
+  "figura.config.format_script.1":"Disabled",
+  "figura.config.format_script.2":"Light",
+  "figura.config.format_script.3":"Heavy",
 
   "figura.config.actionwheel": "Action Wheel",
   "figura.config.actionwheel.tooltip": "Action Wheel settings",
@@ -296,11 +302,17 @@
   "figura.config.popup_max_size": "Player Popup Max Size",
   "figura.config.popup_max_size.tooltip": "Maximum size of player popup as you get closer to the person",
 
-  "figura.config.avatar_heads": "Avatar Heads",
-  "figura.config.avatar_heads.tooltip": "Toggles if the player lists should render their avatars instead of the player skin",
+  "figura.config.avatar_portraits": "Avatar Portraits",
+  "figura.config.avatar_portraits.tooltip": "Toggles if the player lists should render a portrait of their avatar instead of the player skin",
 
   "figura.config.figura_inventory": "Figura Inventory",
   "figura.config.figura_inventory.tooltip": "Toggles between vanilla and Figura's paperdoll rendering for the player inventory",
+
+  "figura.config.toast_time": "Toast Length",
+  "figura.config.toast_time.tooltip": "Changes how much time (in seconds) the Figura toasts should stay on screen",
+
+  "figura.config.toast_title_time": "Long Toast Swap",
+  "figura.config.toast_title_time.tooltip": "Changes how much time (in seconds) long toasts should swap the display of its title and message",
 
 
   "figura.config.paperdoll": "Paperdoll",
@@ -492,7 +504,7 @@
   "figura.docs.math.round": "Rounds the given number to the nearest whole integer.",
   "figura.docs.math.map": "Maps the given value from one range to another. For example, if you have a value of 20 in the range 0-200, and you want to map it to the range 100-200, the result will be 110.",
   "figura.docs.math.short_angle": "Returns the shortest angle between two angles. For example, if you have an angle of 350 degrees and you want to get the shortest angle between it and 0 degrees, the result will be 10 degrees.",
-  "figura.docs.math.lerp_angle": "Similar to the default lerp function, but numbers are limited to the range of 0-360. Lerp is done towards the shortest angle. For example, a lerp of 340 and 20, with factor of 0.75, will return 310.",
+  "figura.docs.math.lerp_angle": "Similar to the default lerp function, but numbers are limited to the range of 0-360. Lerp is done towards the shortest angle. For example, a lerp of 340 and 20, with factor of 0.75, will return 10.",
   "figura.docs.math.sign": "Returns the sign of the given number. Returns 1 if the number is positive, -1 if it's negative, and 0 if it's 0.",
 
 
@@ -609,7 +621,7 @@
 
 
   "figura.docs.biome": "A proxy for a Minecraft biome. Instances are obtained through the WorldAPI. This proxy also contains a saved position for the Biome.",
-  "figura.docs.biome.get_name": "Returns the name of the biome, according to the registry.",
+  "figura.docs.biome.name": "The name of this biome, according to the registry.",
   "figura.docs.biome.get_pos": "Returns the saved position for this Biome's proxy. The saved position is used in Biome functions that require a position.",
   "figura.docs.biome.set_pos": "Sets the saved position for this Biome's proxy. The saved position is used in Biome functions that require a position.",
   "figura.docs.biome.get_tags": "Gets the worldgen related tags from this Biome.",
@@ -692,6 +704,8 @@
   "figura.docs.client.get_active_lang": "Returns a string representation of the current game language.",
   "figura.docs.client.has_iris": "Checks if the client has the Iris mod installed.",
   "figura.docs.client.has_iris_shader": "Checks if the client is currently using an Iris shader.",
+  "figura.docs.client.has_resource": "Checks if the specific resource exists withing the client resources.",
+  "figura.docs.client.get_active_resource_packs": "Returns a table with the active resource pack names.",
   "figura.docs.client.get_figura_version": "Gets the client Figura version.",
   "figura.docs.client.compare_versions": "Compares two versions if they are less than (-1), equals (0) or greater than (1).",
 
@@ -737,6 +751,8 @@
   "figura.docs.living_entity": "Acts as a proxy for a living entity in the Minecraft world.",
   "figura.docs.living_entity.get_body_yaw": "Gets the yaw of this entity's body in degrees. If delta is passed in, then it will be used to linearly interpolate the rotation of the body between the previous tick and the current tick. The default value of delta is 1.",
   "figura.docs.living_entity.get_held_item": "Returns an ItemStack representing the item in this entity's main hand. If true is passed in for \"offhand\", then it will instead look at the item in the entity's offhand. If the entity isn't holding an item in that hand, returns air.",
+  "figura.docs.living_entity.get_active_item": "Returns an ItemStack representing the item the entity is currently using. If they're not using any item, returns air.",
+  "figura.docs.living_entity.get_active_item_time": "Returns the ticks this entity's active item has been used for.",
   "figura.docs.living_entity.get_health": "Returns the amount of health this entity has remaining.",
   "figura.docs.living_entity.get_max_health": "Returns the maximum amount of health this entity can have.",
   "figura.docs.living_entity.get_armor": "Returns the amount of armor points this entity has.",
@@ -747,11 +763,11 @@
   "figura.docs.living_entity.is_left_handed": "Returns true if the entity's main hand is its left.",
   "figura.docs.living_entity.is_using_item": "Returns true if the entity is currently using an item.",
   "figura.docs.living_entity.get_active_hand": "Returns \"OFF_HAND\" or \"MAIN_HAND\", depending on which hand this entity uses an item with.",
-  "figura.docs.living_entity.get_active_item": "Returns an ItemStack representing the item the entity is currently using. If they're not using any item, returns air.",
   "figura.docs.living_entity.is_climbing": "Returns true if the entity is currently using a climbable block, like a ladder or vine.",
   "figura.docs.living_entity.get_swing_time": "Returns the number of ticks this entity has the arm swinging.",
   "figura.docs.living_entity.is_swinging_arm": "Returns true if the entity is currently swinging its arm.",
   "figura.docs.living_entity.get_swing_arm": "Returns \"OFF_HAND\" or \"MAIN_HAND\", based on the arm this entity is currently swinging.",
+  "figura.docs.living_entity.get_swing_duration": "Returns the number of ticks this entity will have while swinging its arms.",
 
   "figura.docs.player": "Acts as a proxy for a player entity in the Minecraft world. A global instance exists for the avatar's user, under the name \"player\".",
   "figura.docs.player.get_food": "Gets the current food level of the player, from 0 to 20.",
@@ -776,6 +792,7 @@
   "figura.docs.events.chat_receive_message": "The CHAT_RECEIVE_MESSAGE event is run every time a message is received in chat. A string parameter is passed in, which contains the message you received.",
   "figura.docs.events.skull_render": "Called between POST_RENDER and POST_WORLD_RENDER, on every one of your skull blocks placed in the world. The arguments are the tick delta and the position of the skull as a vector.",
   "figura.docs.events.mouse_scroll": "The MOUSE_SCROLL event runs every time the mouse is scrolled. Takes a parameter delta, which is the direction of the scroll.",
+  "figura.docs.events.use_item": "The USE_ITEM event is run every time the entity uses an item. The item, action and amount of particles this item would produce is given as argument.",
 
   "figura.docs.event": "A hook for a certain event in Minecraft. You may register functions to one, and those functions will be called when the event occurs.",
   "figura.docs.event.register": "Registers the given function to the given event. When the event occurs, the function will be run. Functions are run in the order they were registered. The optional name parameter is used when you wish to later remove a function from the event.",
@@ -930,8 +947,7 @@
   "figura.docs.model_part.set_secondary_render_type": "Sets the current secondary render type of this model part. Nil by default, meaning the part copies the secondary render type of its parent during rendering. Check the docs list command for all render types.",
   "figura.docs.model_part.set_primary_texture": "Sets the primary texture override of this part. Check the TextureType types in the list docs. If using \"resource\", the second parameter should indicate the path to the Minecraft texture you want to use. If using \"custom\", the second parameter should indicate a texture reference or name",
   "figura.docs.model_part.set_secondary_texture": "Sets the secondary texture override of this part. Check the TextureType types in the list docs. If using \"resource\", the second parameter should indicate the path to the Minecraft texture you want to use. If using \"custom\", the second parameter should indicate a texture reference or name",
-  "figura.docs.model_part.get_primary_textures": "Returns a table with all primary textures used by this part. Do not include children textures, so groups usually will return an empty table.",
-  "figura.docs.model_part.get_secondary_textures": "Returns a table with all secondary textures used by this part. Do not include children textures, so groups usually will return an empty table.",
+  "figura.docs.model_part.get_textures": "Returns a table with all textures used by this part. Do not include children textures, so groups usually will return an empty table.",
   "figura.docs.model_part.part_to_world_matrix": "Gets a matrix which transforms a point from this part's position to a world location. Recommended to use this in POST_RENDER, as by then the matrix is updated. In RENDER it will be 1 frame behind the part's visual position for that frame. Also, if the model is not rendered in-world, the part's matrix will not be updated. Paperdoll rendering and other UI rendering will not affect this matrix.",
   "figura.docs.model_part.get_texture_size": "Gets the width, height of this part's texture in pixels. Throws an error if this part has multiple different-sized textures on it, or if the part is a Group.",
   "figura.docs.model_part.set_uv": "Sets the UV of this part. This function is normalized, meaning it works with values 0 to 1. If you say setUV(0.5, 0.25), for example, it will scroll by half of your texture width to the right, and one fourth of the texture width downwards.",
@@ -949,6 +965,9 @@
   "figura.docs.model_part.set_parent_type": "Sets the parent type of the part. See the ParentType parts in the list docs for legal types.",
   "figura.docs.model_part.get_parent_type": "Returns the current parent type of the part.",
   "figura.docs.model_part.get_type": "Returns whether this part is a \"GROUP\", a \"CUBE\", or a \"MESH\".",
+  "figura.docs.model_part.override_vanilla_rot": "Returns if this part vanilla rotation is being overridden by an animation.",
+  "figura.docs.model_part.override_vanilla_pos": "Returns if this part vanilla position is being overridden by an animation",
+  "figura.docs.model_part.override_vanilla_scale": "Returns if this part vanilla scale is being overridden by an animation",
   "figura.docs.model_part.add_text": "Adds a new Text Render Task on this part.",
   "figura.docs.model_part.add_item": "Adds a new Item Render Task on this part.",
   "figura.docs.model_part.add_block": "Adds a new Block Render Task on this part.",
@@ -980,8 +999,23 @@
   "figura.docs.nameplate_group.set_text": "Sets the text for all its children customizations.",
 
 
-  "figura.docs.particles": "A global API which is used for dealing with Minecraft's particles. Can currently only be used to summon a particle. Accessed using the name \"particles\".",
+  "figura.docs.particles": "A global API which is used for dealing with Minecraft's particles. Particles instances are created when indexing their id. Accessed using the name \"particles\".",
   "figura.docs.particles.add_particle": "Creates a particle with the given name at the specified position, with the given velocity. Some particles have special properties, like the \"dust\" particle. For these particles, the special properties can be put into the \"name\" parameter, the same way as it works for commands.",
+  "figura.docs.particles.remove_particles": "Removes all particles spawned from this avatar.",
+
+  "figura.docs.particle": "Represents a particle that can be spawned and modified. Obtained by indexing the ParticleAPI. Exists as an object-oriented alternative to particles:addParticle().",
+  "figura.docs.particle.spawn": "Spawns this particle with the current properties.",
+  "figura.docs.particle.remove": "Removes this particle from the world.",
+  "figura.docs.particle.is_alive": "Checks if this particle is not flagged for removal.",
+  "figura.docs.particle.get_lifetime": "Gets this particle current lifetime.",
+  "figura.docs.particle.pos": "Sets this particle position. The position is given in world coordinates. Returns this particle for method chaining.",
+  "figura.docs.particle.velocity": "Sets the velocity of this particle. The velocity is given in world coordinates. Returns this particle for method chaining.",
+  "figura.docs.particle.color": "Sets this particle color. Accepts and alpha value, but most particles do not supports it. Default rgba of 1. Returns this particle for method chaining.",
+  "figura.docs.particle.lifetime": "Sets this particle lifetime, which is how many ticks this particle should stay in the world. Returns this particle for method chaining.",
+  "figura.docs.particle.power": "Sets this particle power. Returns this particle for method chaining.",
+  "figura.docs.particle.scale": "Sets this particle scale. Returns this particle for method chaining.",
+  "figura.docs.particle.gravity": "Sets this particle gravity. Returns this particle for method chaining.",
+  "figura.docs.particle.physics": "Sets if this particle has physics. Returns this particle for method chaining.",
 
 
   "figura.docs.pings": "A global API dedicated to register and call pings.",
@@ -1055,8 +1089,7 @@
   "figura.docs.textures.register": "Creates a new texture with the given name, width and height. The texture is filled with a solid color. Returns the texture.",
   "figura.docs.textures.read": "Reads a texture from a base64 string.",
   "figura.docs.textures.get": "Gets a registered texture based on its name, or nil if no texture was found with that name.",
-  "figura.docs.textures.get_primary_textures": "Returns a table with all primary textures used by this avatar.",
-  "figura.docs.textures.get_secondary_textures": "Returns a table with all secondary textures used by this avatar.",
+  "figura.docs.textures.get_textures": "Returns a table with all textures used by this avatar. Do not include generated textures from this API.",
 
   "figura.docs.texture": "A texture object, either generated by the model or created with the TextureAPI.",
   "figura.docs.texture.get_name": "Returns this texture name.",
@@ -1168,6 +1201,7 @@
   "figura.docs.vector_n.div": "Divides this vector by the given vector or values, and returns self for chaining.",
   "figura.docs.vector_n.reduce": "Reduces this vector modulo the given vector or values, and returns self for chaining.",
   "figura.docs.vector_n.scale": "Scales this vector by the given factor, and returns self for chaining.",
+  "figura.docs.vector_n.unpack": "Returns each of this vector values as argument.",
 
   "figura.docs.vector_n.transform": "Transforms this vector by the given matrix, and returns self for chaining.",
   "figura.docs.vector_n.length_squared": "Returns the length of this vector squared. Suitable when you only care about relative lengths, because it avoids a square root.",

@@ -5,7 +5,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.moon.figura.FiguraMod;
-import org.moon.figura.avatars.Avatar;
+import org.moon.figura.avatar.Avatar;
 import org.moon.figura.math.matrix.FiguraMatrix;
 import org.moon.figura.math.vector.FiguraVector;
 import org.moon.figura.utils.MathUtils;
@@ -129,8 +129,8 @@ public class PingArg {
             case DOUBLE -> LuaValue.valueOf(dis.readDouble());
             case STRING -> LuaValue.valueOf(dis.readUTF());
             case TABLE -> readTable(dis, owner);
-            case VECTOR -> owner.luaRuntime.typeManager.javaToLua(readVec(dis));
-            case MATRIX -> owner.luaRuntime.typeManager.javaToLua(readMat(dis));
+            case VECTOR -> owner.luaRuntime.typeManager.javaToLua(readVec(dis)).arg1();
+            case MATRIX -> owner.luaRuntime.typeManager.javaToLua(readMat(dis)).arg1();
             default -> LuaValue.NIL;
         };
     }

@@ -10,13 +10,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.moon.figura.FiguraMod;
-import org.moon.figura.avatars.Avatar;
-import org.moon.figura.avatars.AvatarManager;
+import org.moon.figura.avatar.Avatar;
+import org.moon.figura.avatar.AvatarManager;
 import org.moon.figura.backend.NetworkManager;
 import org.moon.figura.config.Config;
 import org.moon.figura.gui.FiguraToast;
 import org.moon.figura.gui.PopupMenu;
 import org.moon.figura.gui.ActionWheel;
+import org.moon.figura.lua.api.particle.ParticleAPI;
 import org.moon.figura.lua.api.sound.SoundAPI;
 import org.moon.figura.utils.EntityUtils;
 import org.moon.figura.utils.FiguraText;
@@ -44,6 +45,7 @@ public abstract class MinecraftMixin {
             AvatarManager.panic = !AvatarManager.panic;
             FiguraToast.sendToast(FiguraText.of(AvatarManager.panic ? "toast.panic_enabled" : "toast.panic_disabled"), FiguraToast.ToastType.WARNING);
             SoundAPI.getSoundEngine().figura$stopAllSounds();
+            ParticleAPI.getParticleEngine().figura$clearAllParticles();
             return;
         }
 

@@ -11,8 +11,8 @@ import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import org.moon.figura.avatars.Avatar;
-import org.moon.figura.avatars.AvatarManager;
+import org.moon.figura.avatar.Avatar;
+import org.moon.figura.avatar.AvatarManager;
 import org.moon.figura.math.vector.FiguraVec3;
 import org.moon.figura.trust.TrustContainer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,10 +42,10 @@ public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<Sku
         block = null;
 
         //event
-        localAvatar.skullRenderEvent(Minecraft.getInstance().getFrameTime(), localBlock == null ? null : FiguraVec3.fromBlockPos(localBlock.getBlockPos()));
+        boolean bool = localAvatar.skullRenderEvent(Minecraft.getInstance().getFrameTime(), localBlock == null ? null : FiguraVec3.fromBlockPos(localBlock.getBlockPos()));
 
         //render skull :3
-        if (localAvatar.skullRender(stack, bufferSource, light, direction, yaw))
+        if (bool || localAvatar.skullRender(stack, bufferSource, light, direction, yaw))
             ci.cancel();
     }
 

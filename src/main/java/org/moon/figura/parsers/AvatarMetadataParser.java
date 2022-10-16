@@ -7,8 +7,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import org.moon.figura.FiguraMod;
-import org.moon.figura.avatars.model.ParentType;
-import org.moon.figura.avatars.model.rendering.texture.RenderTypes;
+import org.moon.figura.model.ParentType;
+import org.moon.figura.model.rendering.texture.RenderTypes;
+import org.moon.figura.config.Config;
 import org.moon.figura.utils.Version;
 
 import java.io.IOException;
@@ -34,15 +35,12 @@ public class AvatarMetadataParser {
         CompoundTag nbt = new CompoundTag();
 
         //version
-        String version;
-        try {
-            version = Version.of(metadata.version).toString();
-        } catch (Exception ignored) {
-            version = FiguraMod.VERSION;
-        }
+        Version version = new Version(metadata.version);
+        if (version.invalid)
+            version = Version.VERSION;
 
         nbt.putString("name", metadata.name == null || metadata.name.isBlank() ? filename : metadata.name);
-        nbt.putString("ver", version);
+        nbt.putString("ver", version.toString());
         if (metadata.color != null) nbt.putString("color", metadata.color);
         if (metadata.background != null) nbt.putString("bg", metadata.background);
 
@@ -70,6 +68,9 @@ public class AvatarMetadataParser {
             }
             nbt.put("autoScripts", autoScripts);
         }
+
+        if (Config.FORMAT_SCRIPT.asInt() == 2)
+            nbt.putBoolean("minify", true);
 
         return nbt;
     }

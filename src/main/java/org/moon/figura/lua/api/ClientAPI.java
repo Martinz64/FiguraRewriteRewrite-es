@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.Window;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.phys.Vec3;
 import org.luaj.vm2.LuaError;
 import org.moon.figura.FiguraMod;
@@ -17,6 +19,9 @@ import org.moon.figura.math.vector.FiguraVec3;
 import org.moon.figura.utils.MathUtils;
 import org.moon.figura.utils.TextUtils;
 import org.moon.figura.utils.Version;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -250,6 +255,34 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = @LuaMethodOverload(
+                    argumentTypes = String.class,
+                    argumentNames = "path"
+            ),
+            value = "client.has_resource"
+    )
+    public static boolean hasResource(@LuaNotNil String path) {
+        try {
+            ResourceLocation resource = new ResourceLocation(path);
+            return Minecraft.getInstance().getResourceManager().getResource(resource).isPresent();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_active_resource_packs")
+    public static List<String> getActiveResourcePacks() {
+        List<String> list = new ArrayList<>();
+
+        for (Pack pack : Minecraft.getInstance().getResourcePackRepository().getSelectedPacks())
+            list.add(pack.getTitle().getString());
+
+        return list;
+    }
+
+    @LuaWhitelist
     @LuaMethodDoc("client.get_figura_version")
     public static String getFiguraVersion() {
         return FiguraMod.VERSION;
@@ -263,11 +296,15 @@ public class ClientAPI {
             ),
             value = "client.compare_versions")
     public static int compareVersions(@LuaNotNil String ver1, @LuaNotNil String ver2) {
-        try {
-            return Version.of(ver1).compareTo(Version.of(ver2));
-        } catch (Exception e) {
-            throw new LuaError(e.getMessage());
-        }
+        Version v1 = new Version(ver1);
+        Version v2 = new Version(ver2);
+
+        if (v1.invalid)
+            throw new LuaError("Cannot parse version " + "\"" + ver1 + "\"");
+        if (v2.invalid)
+            throw new LuaError("Cannot parse version " + "\"" + ver1 + "\"");
+
+        return v1.compareTo(v2);
     }
 
     @Override
